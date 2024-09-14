@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from models.model import Profile
 from schemas.schema import ProfileCreate
+from main import logger
 
 class ProfileRepository:
 
@@ -10,6 +11,7 @@ class ProfileRepository:
         """
         Get a profile by email.
         """
+        logger.info(f"Getting profile with email {email}")
         return db.query(Profile).filter(Profile.email == email).first()
 
     @staticmethod
@@ -17,10 +19,12 @@ class ProfileRepository:
         """
         Create a profile in the database.
         """
+        logger.info(f"Creating profile with data {profile_data.dict()}")
         db_profile = Profile(**profile_data.dict(), email=email)
         db.add(db_profile)
         db.commit()
         db.refresh(db_profile)
+        logger.info(f"Profile created with id {db_profile.id}")
         return db_profile
     
     @staticmethod
@@ -28,10 +32,12 @@ class ProfileRepository:
         """
         Update a profile in the database.
         """
+        logger.info(f"Updating profile with data {profile_data.dict()}")
         for key, value in profile_data.dict().items():
             setattr(profile, key, value)
         db.commit()
         db.refresh(profile)
+        logger.info(f"Profile updated with id {profile.id}")
         return profile
     
     @staticmethod
@@ -39,8 +45,10 @@ class ProfileRepository:
         """
         Delete a profile from the database.
         """
+        logger.info(f"Deleting profile with id {profile.id}")
         db.delete(profile)
         db.commit()
+        logger.info(f"Profile deleted with id {profile.id}")
         return profile
     
     @staticmethod
@@ -50,7 +58,7 @@ class ProfileRepository:
         First look for users whose first_name starts with the given prefix,
         then look for users whose first_name contains the given prefix if needed.
         """
-        
+        logger.info(f"Searching for users with first name {first_name}")
         starts_with_query = db.query(Profile).filter(Profile.first_name.ilike(f"{first_name}%")).offset(offset).limit(amount).all()
 
         if len(starts_with_query) < amount:
@@ -67,5 +75,7 @@ class ProfileRepository:
             )
 
             return starts_with_query + contains_query
+        
+        logger.info(f"Found {len(starts_with_query)} users with first name {first_name}")
 
         return starts_with_query
