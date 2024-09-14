@@ -13,7 +13,7 @@ class ProfileService:
 
     def get_user_email_from_token(self, token: str) -> str:
         logger.info(f"Getting user email from token {token}")
-        response = requests.get(f"{self.auth_service_url}/get-email", headers={"Authorization": token})
+        response = requests.get(f"{self.auth_service_url}/auth/get-email", headers={"Authorization": token})
         if response.status_code == 200:
             logger.info(f"User email: {response.json().get('email')}")
             return response.json().get("email")

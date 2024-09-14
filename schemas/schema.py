@@ -8,8 +8,6 @@ class ProfileCreate(BaseModel):
     location: Optional[str]
     description: Optional[str]
     date_of_birth: Optional[date]
-    profile_photo: Optional[str]
-
 class ProfileUpdate(ProfileCreate):
     pass
 
