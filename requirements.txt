@@ -4,4 +4,4 @@ sqlalchemy
 psycopg2
 pydantic
 requests
-dotenv
+python-dotenv
