@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, Date, Text
-from db import Base
+from configs.db import Base
 
 class Profile(Base):
     __tablename__ = 'profiles'
@@ -10,5 +10,4 @@ class Profile(Base):
     location = Column(String)
     description = Column(Text)
     date_of_birth = Column(Date)
-    profile_photo = Column(String)
 

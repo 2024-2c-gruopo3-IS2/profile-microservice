@@ -1,26 +1,81 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from db import get_db
+from configs.db import get_db
 from schemas.schema import ProfileCreate, ProfileResponse
 from services.service import ProfileService
-from config import Settings
-from main import logger
+from configs.env import settings
+import logging
 
-router = APIRouter(prefix="/profiles", tags=["profiles"])
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
-@router.post("/", response_model=ProfileResponse)
-def create_profile(profile_data: ProfileCreate, token: str = Header(None), db: Session = Depends(get_db)):
+router = APIRouter()
+
+@router.post("/")
+def create_profile( token: str, profile_data: ProfileCreate, db: Session = Depends(get_db)):
     """
     Create a profile.
     """
     logger.info(f"Creating profile with data {profile_data.dict()}")
-    service = ProfileService(auth_service_url=Settings.AUTH_SERVICE_URL)
+    service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
     try:
         logger.info(f"Creating profile with data {profile_data.dict()}")
-        user_profile = service.create_profile(db, profile_data, token)
+        service.create_profile(db, profile_data, token)
         logger.info(f"Profile created successfully")
-        return {"message": "Profile created successfully", "profile": user_profile}
+        return {"message": "Profile created successfully"}
+                
     except Exception as e:
         logger.error(f"Error creating profile: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/", response_model=ProfileResponse)
+def get_profile(token: str, db: Session = Depends(get_db)):
+    """
+    Get a profile.
+    """
+    logger.info(f"Getting profile")
+    service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
+    try:
+        logger.info(f"Getting profile")
+        profile = service.get_profile(db, token)
+        logger.info(f"Profile retrieved successfully")
+        return ProfileResponse(**profile.__dict__)
+                
+    except Exception as e:
+        logger.error(f"Error getting profile: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.put("/")
+def update_profile(token: str, profile_data: ProfileCreate, db: Session = Depends(get_db)):
+    """
+    Update a profile.
+    """
+    logger.info(f"Updating profile with data {profile_data.dict()}")
+    service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
+    try:
+        logger.info(f"Updating profile with data {profile_data.dict()}")
+        service.update_profile(db, profile_data, token)
+        logger.info(f"Profile updated successfully")
+        return {"message": "Profile updated successfully"}
+                
+    except Exception as e:
+        logger.error(f"Error updating profile: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@router.delete("/")
+def delete_profile(token: str, db: Session = Depends(get_db)):
+    """
+    Delete a profile.
+    """
+    logger.info(f"Deleting profile")
+    service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
+    try:
+        logger.info(f"Deleting profile")
+        service.delete_profile(db, token)
+        logger.info(f"Profile deleted successfully")
+        return {"message": "Profile deleted successfully"}
+                
+    except Exception as e:
+        logger.error(f"Error deleting profile: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))

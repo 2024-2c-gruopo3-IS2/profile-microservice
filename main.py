@@ -1,16 +1,16 @@
 from fastapi import FastAPI
-from .config import Settings
-from .controllers.controller import router
+from controllers.controller import router
+from configs.db import Base, engine
 import logging
 
 app = FastAPI()
 
-settings = Settings()
-
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-app.include_router(router)
+app.include_router(router, prefix="/profiles", tags=["profiles"])
+
+Base.metadata.create_all(bind=engine)
 
 @app.get("/")
 def root():

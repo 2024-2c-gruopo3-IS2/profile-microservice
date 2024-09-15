@@ -1,10 +1,13 @@
+import logging
 from fastapi import HTTPException
 import requests
 from sqlalchemy.orm import Session
 
 from repositories.repository import ProfileRepository
 from schemas.schema import ProfileCreate
-from main import logger
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 class ProfileService:
 
@@ -13,7 +16,11 @@ class ProfileService:
 
     def get_user_email_from_token(self, token: str) -> str:
         logger.info(f"Getting user email from token {token}")
-        response = requests.get(f"{self.auth_service_url}/auth/get-email", headers={"Authorization": token})
+        response = requests.get(
+            self.auth_service_url + "/auth/get-email-from-token",
+            headers={"Content-Type": "application/json"},
+            json={"token": token}
+        )
         if response.status_code == 200:
             logger.info(f"User email: {response.json().get('email')}")
             return response.json().get("email")
@@ -28,3 +35,33 @@ class ProfileService:
             raise Exception(f"Profile for email {email} already exists.")
         logger.info(f"Creating profile for email {email}")
         return ProfileRepository.create_profile(db, profile_data, email)
+    
+    def get_profile(self, db: Session, token: str):
+        logger.info(f"Getting profile")
+        email = self.get_user_email_from_token(token)
+        profile = ProfileRepository.get_by_email(db, email)
+        if not profile:
+            logger.error(f"Profile for email {email} not found.")
+            raise Exception(f"Profile for email {email} not found.")
+        logger.info(f"Profile for email {email} retrieved")
+        return profile
+    
+    def update_profile(self, db: Session, profile_data: ProfileCreate, token: str):
+        logger.info(f"Updating profile with data {profile_data.dict()}")
+        email = self.get_user_email_from_token(token)
+        profile = ProfileRepository.get_by_email(db, email)
+        if not profile:
+            logger.error(f"Profile for email {email} not found.")
+            raise Exception(f"Profile for email {email} not found.")
+        logger.info(f"Updating profile for email {email}")
+        return ProfileRepository.update_profile(db, profile, profile_data)
+    
+    def delete_profile(self, db: Session, token: str):
+        logger.info(f"Deleting profile")
+        email = self.get_user_email_from_token(token)
+        profile = ProfileRepository.get_by_email(db, email)
+        if not profile:
+            logger.error(f"Profile for email {email} not found.")
+            raise Exception(f"Profile for email {email} not found.")
+        logger.info(f"Deleting profile for email {email}")
+        return ProfileRepository.delete_profile(db, profile)

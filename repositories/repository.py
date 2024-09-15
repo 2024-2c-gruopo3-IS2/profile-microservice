@@ -1,8 +1,11 @@
 from sqlalchemy.orm import Session
-
+import logging
 from models.model import Profile
 from schemas.schema import ProfileCreate
-from main import logger
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 
 class ProfileRepository:
 
@@ -24,7 +27,7 @@ class ProfileRepository:
         db.add(db_profile)
         db.commit()
         db.refresh(db_profile)
-        logger.info(f"Profile created with id {db_profile.id}")
+        logger.info(f"Profile created with email {db_profile.email}")
         return db_profile
     
     @staticmethod
@@ -37,7 +40,7 @@ class ProfileRepository:
             setattr(profile, key, value)
         db.commit()
         db.refresh(profile)
-        logger.info(f"Profile updated with id {profile.id}")
+        logger.info(f"Profile updated with email {profile.email}")
         return profile
     
     @staticmethod
@@ -45,10 +48,10 @@ class ProfileRepository:
         """
         Delete a profile from the database.
         """
-        logger.info(f"Deleting profile with id {profile.id}")
+        logger.info(f"Deleting profile with email {profile.email}")
         db.delete(profile)
         db.commit()
-        logger.info(f"Profile deleted with id {profile.id}")
+        logger.info(f"Profile deleted with email {profile.email}")
         return profile
     
     @staticmethod
@@ -59,7 +62,7 @@ class ProfileRepository:
         then look for users whose first_name contains the given prefix if needed.
         """
         logger.info(f"Searching for users with first name {first_name}")
-        starts_with_query = db.query(Profile).filter(Profile.first_name.ilike(f"{first_name}%")).offset(offset).limit(amount).all()
+        starts_with_query = db.query(Profile).filter(Profile.name.ilike(f"{first_name}%")).offset(offset).limit(amount).all()
 
         if len(starts_with_query) < amount:
             
@@ -68,7 +71,7 @@ class ProfileRepository:
     
             contains_query = (
                 db.query(Profile)
-                .filter(Profile.first_name.ilike(f"%{first_name}%"))
+                .filter(Profile.name.ilike(f"%{first_name}%"))
                 .offset(offset)
                 .limit(remaining)
                 .all()
