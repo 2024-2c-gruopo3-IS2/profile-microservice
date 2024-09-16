@@ -65,3 +65,7 @@ class ProfileService:
             raise Exception(f"Profile for email {email} not found.")
         logger.info(f"Deleting profile for email {email}")
         return ProfileRepository.delete_profile(db, profile)
+    
+    def get_all_usernames(self, db: Session):
+        logger.info(f"Getting all usernames")
+        return ProfileRepository.get_all_usernames(db)

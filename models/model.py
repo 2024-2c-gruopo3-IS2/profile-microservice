@@ -5,6 +5,7 @@ class Profile(Base):
     __tablename__ = 'profiles'
 
     email = Column(String, primary_key=True, index=True, unique=True)
+    username = Column(String, primary_key=True, index=True, unique=True)
     name = Column(String)
     surname = Column(String)
     location = Column(String)

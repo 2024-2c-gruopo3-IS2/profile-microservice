@@ -4,6 +4,7 @@ from datetime import date
 
 class ProfileCreate(BaseModel):
     name: str
+    username: str
     surname: str
     location: Optional[str]
     description: Optional[str]

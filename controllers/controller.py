@@ -79,3 +79,22 @@ def delete_profile(token: str, db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Error deleting profile: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/all-usernames")
+def get_all_usernames(db: Session = Depends(get_db)):
+    """
+    Get all usernames.
+    """
+    logger.info(f"Getting all usernames")
+    service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
+    try:
+        logger.info(f"Getting all usernames")
+        usernames = service.get_all_usernames(db)
+        logger.info(f"Usernames retrieved successfully")
+        return usernames
+                
+    except Exception as e:
+        logger.error(f"Error getting all usernames: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+
