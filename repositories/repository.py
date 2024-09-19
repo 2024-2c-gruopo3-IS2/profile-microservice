@@ -22,8 +22,11 @@ class ProfileRepository:
         """
         Create a profile in the database.
         """
-        logger.info(f"Creating profile with data {profile_data.dict()}")
-        db_profile = Profile(**profile_data.dict(), email=email)
+        profile_data = profile_data.dict()
+        profile_data["interests"] = ",".join(profile_data.get("interests", []))
+
+        logger.info(f"Creating profile with data {profile_data}")
+        db_profile = Profile(**profile_data, email=email)
         db.add(db_profile)
         db.commit()
         db.refresh(db_profile)
@@ -37,6 +40,8 @@ class ProfileRepository:
         """
         logger.info(f"Updating profile with data {profile_data.dict()}")
         for key, value in profile_data.dict().items():
+            if key == "interests":
+                value = ",".join(value)
             setattr(profile, key, value)
         db.commit()
         db.refresh(profile)

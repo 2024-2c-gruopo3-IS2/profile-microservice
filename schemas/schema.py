@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import List, Optional
 from datetime import date
 
 class ProfileCreate(BaseModel):
@@ -9,6 +9,7 @@ class ProfileCreate(BaseModel):
     location: Optional[str]
     description: Optional[str]
     date_of_birth: Optional[date]
+    interests: Optional[List[str]]
 class ProfileUpdate(ProfileCreate):
     pass
 

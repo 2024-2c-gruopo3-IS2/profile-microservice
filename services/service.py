@@ -40,6 +40,8 @@ class ProfileService:
         logger.info(f"Getting profile")
         email = self.get_user_email_from_token(token)
         profile = ProfileRepository.get_by_email(db, email)
+        profile = profile.__dict__
+        profile["interests"] = profile.get("interests", "").split(",")
         if not profile:
             logger.error(f"Profile for email {email} not found.")
             raise Exception(f"Profile for email {email} not found.")

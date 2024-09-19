@@ -11,4 +11,5 @@ class Profile(Base):
     location = Column(String)
     description = Column(Text)
     date_of_birth = Column(Date)
+    interests = Column(Text)
 

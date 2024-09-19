@@ -40,7 +40,7 @@ def get_profile(token: str, db: Session = Depends(get_db)):
         logger.info(f"Getting profile")
         profile = service.get_profile(db, token)
         logger.info(f"Profile retrieved successfully")
-        return ProfileResponse(**profile.__dict__)
+        return ProfileResponse(**profile)
                 
     except Exception as e:
         logger.error(f"Error getting profile: {str(e)}")
