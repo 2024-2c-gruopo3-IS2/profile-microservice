@@ -95,3 +95,11 @@ class ProfileRepository:
         """
         logger.info(f"Getting all usernames")
         return [username[0] for username in db.query(Profile.username).all()]
+    
+    @staticmethod
+    def get_profile_by_username(db: Session, username: str):
+        """
+        Get a profile by username.
+        """
+        logger.info(f"Getting profile with username {username}")
+        return db.query(Profile).filter(Profile.username == username).first()

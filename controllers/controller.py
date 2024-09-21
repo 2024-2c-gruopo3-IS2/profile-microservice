@@ -97,4 +97,24 @@ def get_all_usernames(db: Session = Depends(get_db)):
         logger.error(f"Error getting all usernames: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
+@router.get("/by-username", response_model=ProfileResponse)
+def get_profile_by_username(username: str, db: Session = Depends(get_db)):
+    """
+    Get a profile by username.
+    """
+    logger.info(f"Getting profile by username {username}")
+    service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
+    try:
+        logger.info(f"Getting profile by username {username}")
+        profile = service.get_profile_by_username(db, username)
+        logger.info(f"Profile retrieved successfully")
+
+        print("profile", profile)
+
+        return ProfileResponse(**profile)
+                
+    except Exception as e:
+        logger.error(f"Error getting profile by username: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+
 

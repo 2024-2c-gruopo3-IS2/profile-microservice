@@ -71,3 +71,16 @@ class ProfileService:
     def get_all_usernames(self, db: Session):
         logger.info(f"Getting all usernames")
         return ProfileRepository.get_all_usernames(db)
+    
+    def get_profile_by_username(self, db: Session, username: str):
+        logger.info(f"Getting profiles by username {username}")
+        profile =  ProfileRepository.get_profile_by_username(db, username)
+
+        if not profile:
+            logger.error(f"Profile for username {username} not found.")
+            raise Exception(f"Profile for username {username} not found.")
+        
+        profile = profile.__dict__
+        profile["interests"] = profile.get("interests", "").split(",")
+        logger.info(f"Profile for username {username} retrieved")
+        return profile
