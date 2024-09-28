@@ -27,13 +27,6 @@ jobs:
     - name: Start services with docker-compose
       run: docker-compose up --build -d 
 
-    - name: Wait for PostgreSQL to be ready
-      run: |
-        until docker-compose exec postgres pg_isready -U admin; do
-          echo "Waiting for PostgreSQL to start..."
-          sleep 5
-        done
-
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
