@@ -6,6 +6,7 @@ from schemas.schema import ProfileCreate, ProfileResponse
 from services.service import ProfileService
 from configs.env import settings
 import logging
+from controllers.authentication import get_user_from_token
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -13,15 +14,15 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 @router.post("/")
-def create_profile( token: str, profile_data: ProfileCreate, db: Session = Depends(get_db)):
+def create_profile(profile_data: ProfileCreate, user_email: callable = Depends(get_user_from_token), db: Session = Depends(get_db)):
     """
     Create a profile.
     """
-    logger.info(f"Creating profile with data {profile_data.dict()}")
+    logger.info(f"Creating profile with data {profile_data.model_dump()}")
     service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
     try:
-        logger.info(f"Creating profile with data {profile_data.dict()}")
-        service.create_profile(db, profile_data, token)
+        logger.info(f"Creating profile with data {profile_data.model_dump()}")
+        service.create_profile(db, profile_data, user_email)
         logger.info(f"Profile created successfully")
         return {"message": "Profile created successfully"}
                 
@@ -30,7 +31,7 @@ def create_profile( token: str, profile_data: ProfileCreate, db: Session = Depen
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/", response_model=ProfileResponse)
-def get_profile(token: str, db: Session = Depends(get_db)):
+def get_profile(user_email: callable = Depends(get_user_from_token), db: Session = Depends(get_db)):
     """
     Get a profile.
     """
@@ -38,7 +39,7 @@ def get_profile(token: str, db: Session = Depends(get_db)):
     service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
     try:
         logger.info(f"Getting profile")
-        profile = service.get_profile(db, token)
+        profile = service.get_profile(db, user_email)
         logger.info(f"Profile retrieved successfully")
         return ProfileResponse(**profile)
                 
@@ -47,15 +48,15 @@ def get_profile(token: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.put("/")
-def update_profile(token: str, profile_data: ProfileCreate, db: Session = Depends(get_db)):
+def update_profile(profile_data: ProfileCreate, user_email: callable = Depends(get_user_from_token), db: Session = Depends(get_db)):
     """
     Update a profile.
     """
-    logger.info(f"Updating profile with data {profile_data.dict()}")
+    logger.info(f"Updating profile with data {profile_data.model_dump()}")
     service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
     try:
-        logger.info(f"Updating profile with data {profile_data.dict()}")
-        service.update_profile(db, profile_data, token)
+        logger.info(f"Updating profile with data {profile_data.model_dump()}")
+        service.update_profile(db, profile_data, user_email)
         logger.info(f"Profile updated successfully")
         return {"message": "Profile updated successfully"}
                 
@@ -64,7 +65,7 @@ def update_profile(token: str, profile_data: ProfileCreate, db: Session = Depend
         raise HTTPException(status_code=400, detail=str(e))
     
 @router.delete("/")
-def delete_profile(token: str, db: Session = Depends(get_db)):
+def delete_profile(user_email: callable = Depends(get_user_from_token), db: Session = Depends(get_db)):
     """
     Delete a profile.
     """
@@ -72,7 +73,7 @@ def delete_profile(token: str, db: Session = Depends(get_db)):
     service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
     try:
         logger.info(f"Deleting profile")
-        service.delete_profile(db, token)
+        service.delete_profile(db, user_email)
         logger.info(f"Profile deleted successfully")
         return {"message": "Profile deleted successfully"}
                 
@@ -115,6 +116,6 @@ def get_profile_by_username(username: str, db: Session = Depends(get_db)):
                 
     except Exception as e:
         logger.error(f"Error getting profile by username: {str(e)}")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=404, detail=str(e))
 
 

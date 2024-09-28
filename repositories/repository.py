@@ -22,7 +22,7 @@ class ProfileRepository:
         """
         Create a profile in the database.
         """
-        profile_data = profile_data.dict()
+        profile_data = profile_data.model_dump()
         profile_data["interests"] = ",".join(profile_data.get("interests", []))
 
         logger.info(f"Creating profile with data {profile_data}")
@@ -38,8 +38,8 @@ class ProfileRepository:
         """
         Update a profile in the database.
         """
-        logger.info(f"Updating profile with data {profile_data.dict()}")
-        for key, value in profile_data.dict().items():
+        logger.info(f"Updating profile with data {profile_data.model_dump()}")
+        for key, value in profile_data.model_dump().items():
             if key == "interests":
                 value = ",".join(value)
             setattr(profile, key, value)
