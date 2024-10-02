@@ -1,6 +1,7 @@
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 import logging
-from models.model import Profile
+from models.model import Follows, Profile
 from schemas.schema import ProfileCreate
 
 logging.basicConfig(level=logging.DEBUG)
@@ -103,3 +104,41 @@ class ProfileRepository:
         """
         logger.info(f"Getting profile with username {username}")
         return db.query(Profile).filter(Profile.username == username).first()
+    
+    @staticmethod
+    def follow_user(db: Session, follower: str, followed: str):
+        """
+        Follow a user.
+        """
+        logger.info(f"Following user {followed}")
+        query = text("INSERT INTO follows (follower, followed) VALUES (:follower, :followed)")
+        db.execute(query, {"follower": follower, "followed": followed})
+        db.commit()
+        logger.info(f"User {followed} followed successfully")
+
+    @staticmethod
+    def unfollow_user(db: Session, follower: str, followed: str):
+        """
+        Unfollow a user.
+        """
+        logger.info(f"Unfollowing user {followed}")
+        query = text("DELETE FROM follows WHERE follower = :follower AND followed = :followed")
+        db.execute(query, {"follower": follower, "followed": followed})
+        db.commit()
+        logger.info(f"User {followed} unfollowed successfully")
+    
+    @staticmethod
+    def get_all_followed(db: Session, follower: str):
+        """
+        Get all users followed by a user.
+        """
+        logger.info(f"Getting all users followed by {follower}")
+        return [followed[0] for followed in db.query(Follows.followed).filter(Follows.follower == follower).all()]
+    
+    @staticmethod
+    def get_all_followers(db: Session, followed: str):
+        """
+        Get all users following a user.
+        """
+        logger.info(f"Getting all users following {followed}")
+        return [follower[0] for follower in db.query(Follows.follower).filter(Follows.followed == followed).all()]

@@ -117,5 +117,73 @@ def get_profile_by_username(username: str, db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Error getting profile by username: {str(e)}")
         raise HTTPException(status_code=404, detail=str(e))
+    
+@router.post("/follow")
+def follow_user(username: str, user_email: callable = Depends(get_user_from_token), db: Session = Depends(get_db)):
+    """
+    Follow a user.
+    """
+    logger.info(f"Following user {username}")
+    service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
+    try:
+        logger.info(f"Following user {username}")
+        service.follow_user(db, user_email, username)
+        logger.info(f"User followed successfully")
+        return {"message": "User followed successfully"}
+                
+    except Exception as e:
+        logger.error(f"Error following user: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@router.delete("/unfollow")
+def unfollow_user(username: str, user_email: callable = Depends(get_user_from_token), db: Session = Depends(get_db)):
+    """
+    Unfollow a user.
+    """
+    logger.info(f"Unfollowing user {username}")
+    service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
+    try:
+        logger.info(f"Unfollowing user {username}")
+        service.unfollow_user(db, user_email, username)
+        logger.info(f"User unfollowed successfully")
+        return {"message": "User unfollowed successfully"}
+                
+    except Exception as e:
+        logger.error(f"Error unfollowing user: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@router.get("/followers")
+def get_followers(username: str, db: Session = Depends(get_db)):
+    """
+    Get followers of a user.
+    """
+    logger.info(f"Getting followers for {username}")
+    service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
+    try:
+        logger.info(f"Getting followers for {username}")
+        followers = service.get_followers(db, username)
+        logger.info(f"Followers retrieved successfully")
+        return followers
+                
+    except Exception as e:
+        logger.error(f"Error getting followers: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@router.get("/followed")
+def get_followed(username: str, db: Session = Depends(get_db)):
+    """
+    Get users followed by a user.
+    """
+    logger.info(f"Getting followed")
+    service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
+    try:
+        logger.info(f"Getting followed")
+        followed = service.get_followed(db, username)
+        logger.info(f"Followed retrieved successfully")
+        return followed
+                
+    except Exception as e:
+        logger.error(f"Error getting followed: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
 
 

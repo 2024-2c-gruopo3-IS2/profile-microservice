@@ -13,3 +13,9 @@ class Profile(Base):
     date_of_birth = Column(Date)
     interests = Column(Text)
 
+class Follows(Base):
+    __tablename__ = 'follows'
+
+    follower = Column(String, primary_key=True, index=True)
+    followed = Column(String, primary_key=True, index=True)
+

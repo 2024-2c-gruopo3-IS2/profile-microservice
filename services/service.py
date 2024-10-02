@@ -1,5 +1,5 @@
 import logging
-from fastapi import HTTPException, Header
+from fastapi import Header
 import requests
 from sqlalchemy.orm import Session
 
@@ -68,3 +68,53 @@ class ProfileService:
         profile["interests"] = profile.get("interests", "").split(",")
         logger.info(f"Profile for username {username} retrieved")
         return profile
+    
+    def follow_user(self, db: Session, follower_email: str, followed: str):
+        logger.info(f"Following user {followed}")
+
+        followed_profile = ProfileRepository.get_profile_by_username(db, followed)
+
+        if not followed_profile:
+            logger.error(f"Profile for username {followed} not found.")
+
+            raise Exception(f"User with username {followed} not found.")
+        
+        follower_username = ProfileRepository.get_by_email(db, follower_email).username
+        
+        all_followed = ProfileRepository.get_all_followed(db, follower_username)
+
+        if followed in all_followed:
+            logger.error(f"User with username {followed} is already followed by user with username {follower_username}")
+            raise Exception(f"User with username {followed} is already followed by user with username {follower_username}")
+
+
+        return ProfileRepository.follow_user(db, follower_username, followed)
+    
+    def unfollow_user(self, db: Session, follower_email: str, followed: str):
+        logger.info(f"Unfollowing user {followed}")
+
+        followed_profile = ProfileRepository.get_profile_by_username(db, followed)
+
+        if not followed_profile:
+            logger.error(f"Profile for username {followed} not found.")
+            raise Exception(f"User with username {followed} not found.")
+        
+        follower_username = ProfileRepository.get_by_email(db, follower_email).username
+        
+        all_followed = ProfileRepository.get_all_followed(db, follower_username)
+
+        if followed not in all_followed:
+            logger.error(f"User with username {followed} is not followed by user with username {follower_username}")
+            raise Exception(f"User with username {followed} is not followed by user with username {follower_username}")
+
+        return ProfileRepository.unfollow_user(db, follower_username, followed)
+    
+    def get_followed(self, db: Session, username: str):
+        logger.info(f"Getting all followed")
+        return ProfileRepository.get_all_followed(db, username)
+    
+    def get_followers(self, db: Session, username: str):
+        logger.info(f"Getting followers")
+        return ProfileRepository.get_all_followers(db, username)
+    
+    
