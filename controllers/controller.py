@@ -153,7 +153,7 @@ def unfollow_user(username: str, user_email: callable = Depends(get_user_from_to
         raise HTTPException(status_code=400, detail=str(e))
     
 @router.get("/followers")
-def get_followers(username: str, db: Session = Depends(get_db)):
+def get_followers(username: str, user_email: callable = Depends(get_user_from_token), db: Session = Depends(get_db)):
     """
     Get followers of a user.
     """
@@ -161,7 +161,7 @@ def get_followers(username: str, db: Session = Depends(get_db)):
     service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
     try:
         logger.info(f"Getting followers for {username}")
-        followers = service.get_followers(db, username)
+        followers = service.get_followers(db, username, user_email)
         logger.info(f"Followers retrieved successfully")
         return followers
                 
@@ -170,7 +170,7 @@ def get_followers(username: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
     
 @router.get("/followed")
-def get_followed(username: str, db: Session = Depends(get_db)):
+def get_followed(username: str, user_email: callable = Depends(get_user_from_token), db: Session = Depends(get_db)):
     """
     Get users followed by a user.
     """
@@ -178,7 +178,7 @@ def get_followed(username: str, db: Session = Depends(get_db)):
     service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
     try:
         logger.info(f"Getting followed")
-        followed = service.get_followed(db, username)
+        followed = service.get_followed(db, username, user_email)
         logger.info(f"Followed retrieved successfully")
         return followed
                 

@@ -188,19 +188,51 @@ def test_follow_user_success():
     assert response.status_code == 200
     assert response.json() == {"message": "User followed successfully"}
 
+def test_get_followers_unauthorized():
+    response = client.get("/profiles/followers?username=johndoe", headers={"Authorization":"Bearer invalid_token"})
+
+    assert response.status_code == 400
+    assert response.json() == {"detail": "User janedoe is not authorized to view followers of user johndoe"}
+
+def test_get_followed_unauthorized():
+    response = client.get("/profiles/followed?username=johndoe", headers={"Authorization":"Bearer invalid_token"})
+
+    assert response.status_code == 400
+    assert response.json() == {"detail": "User janedoe is not authorized to view followed of user johndoe"}
+
 def test_get_followers():
-    response = client.get("/profiles/followers?username=johndoe")
+    app.dependency_overrides[get_user_from_token] = mock_get_user_from_token
+
+    client.post("/profiles/follow?username=janedoe", headers={"Authorization": "Bearer invalid_token"})
+
+    response = client.get("/profiles/followers?username=johndoe", headers={"Authorization":"Bearer invalid_token"})
+
     assert response.status_code == 200
     assert isinstance(response.json(), list)
     assert len(response.json()) == 1
     assert response.json()[0] == "janedoe"
 
 def test_get_followed():
-    response = client.get("/profiles/followed?username=janedoe")
+    response = client.get("/profiles/followed?username=janedoe", headers={"Authorization":"Bearer invalid_token"})
     assert response.status_code == 200
     assert isinstance(response.json(), list)
     assert len(response.json()) == 1
     assert response.json()[0] == "johndoe"
+
+def test_get_my_followers():
+    response = client.get("/profiles/followers?username=johndoe", headers={"Authorization":"Bearer invalid_token"})
+    
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+    assert len(response.json()) == 1
+    assert response.json()[0] == "janedoe"
+
+def test_get_my_followed():
+    response = client.get("/profiles/followed?username=johndoe", headers={"Authorization":"Bearer invalid_token"})
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+    assert len(response.json()) == 1
+    assert response.json()[0] == "janedoe"
 
 def test_follow_inexistent_user():
     response = client.post("/profiles/follow?username=unexisting", headers={"Authorization": "Bearer invalid_token"})
@@ -209,6 +241,8 @@ def test_follow_inexistent_user():
     assert response.json() == {"detail": "User with username unexisting not found."}
 
 def test_follow_already_followed_user():
+    app.dependency_overrides[get_user_from_token] = mock_get_user_from_token_user_2
+
     response = client.post("/profiles/follow?username=johndoe", headers={"Authorization": "Bearer invalid_token"})
 
     assert response.status_code == 400
@@ -232,3 +266,8 @@ def test_unfollow_not_followed_user():
     assert response.status_code == 400
     assert response.json() == {"detail": "User with username johndoe is not followed by user with username janedoe"}
 
+def test_cannot_follow_self():
+    response = client.post("/profiles/follow?username=janedoe", headers={"Authorization": "Bearer invalid_token"})
+
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Cannot follow yourself."}

@@ -80,6 +80,10 @@ class ProfileService:
             raise Exception(f"User with username {followed} not found.")
         
         follower_username = ProfileRepository.get_by_email(db, follower_email).username
+
+        if follower_username == followed:
+            logger.error(f"Cannot follow yourself.")
+            raise Exception(f"Cannot follow yourself.")
         
         all_followed = ProfileRepository.get_all_followed(db, follower_username)
 
@@ -109,12 +113,36 @@ class ProfileService:
 
         return ProfileRepository.unfollow_user(db, follower_username, followed)
     
-    def get_followed(self, db: Session, username: str):
-        logger.info(f"Getting all followed")
-        return ProfileRepository.get_all_followed(db, username)
+    def get_followed(self, db: Session, username: str, user_email: str):
+        logger.info(f"Getting followed")
+
+        token_username = ProfileRepository.get_by_email(db, user_email).username
+
+        if token_username == username:
+            return ProfileRepository.get_all_followed(db, username)
+        else:
+            username_followed = ProfileRepository.get_all_followed(db, username)
+            token_username_followed = ProfileRepository.get_all_followed(db, token_username)
+
+            if token_username in username_followed and username in token_username_followed:
+                return username_followed
+            else:
+                raise Exception(f"User {token_username} is not authorized to view followed of user {username}")
     
-    def get_followers(self, db: Session, username: str):
+    def get_followers(self, db: Session, username: str, user_email: str):
         logger.info(f"Getting followers")
-        return ProfileRepository.get_all_followers(db, username)
+
+        token_username = ProfileRepository.get_by_email(db, user_email).username
+
+        if token_username == username:
+            return ProfileRepository.get_all_followers(db, username)
+        else:
+            username_followers = ProfileRepository.get_all_followers(db, username)
+            token_username_followers = ProfileRepository.get_all_followers(db, token_username)
+
+            if token_username in username_followers and username in token_username_followers:
+                return username_followers
+            else:
+                raise Exception(f"User {token_username} is not authorized to view followers of user {username}")
     
     
