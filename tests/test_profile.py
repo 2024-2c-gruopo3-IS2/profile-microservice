@@ -234,6 +234,13 @@ def test_get_my_followed():
     assert len(response.json()) == 1
     assert response.json()[0] == "janedoe"
 
+def test_get_followed_emails():
+    response = client.get("/profiles/followed-emails?username=janedoe", headers={"Authorization":"Bearer invalid_token"})
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+    assert len(response.json()) == 1
+    assert response.json()[0] == 'mocked_email@example.com'
+
 def test_follow_inexistent_user():
     response = client.post("/profiles/follow?username=unexisting", headers={"Authorization": "Bearer invalid_token"})
 
@@ -271,3 +278,6 @@ def test_cannot_follow_self():
 
     assert response.status_code == 400
     assert response.json() == {"detail": "Cannot follow yourself."}
+
+
+

@@ -185,5 +185,26 @@ def get_followed(username: str, user_email: callable = Depends(get_user_from_tok
     except Exception as e:
         logger.error(f"Error getting followed: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
+    
+@router.get("/followed-emails")
+def get_followed_emails(username: str, user_email: callable = Depends(get_user_from_token), db: Session = Depends(get_db)):
+    """
+    Get emails of users followed by a user.
+    """
+    logger.info(f"Getting followed emails")
+    service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
+    try:
+        logger.info(f"Getting followed emails")
+        followed_usernames = service.get_followed(db, username, user_email)
+        logger.info(f"Followed emails retrieved successfully")
+        followed_emails = []
+        for followed_username in followed_usernames:
+            followed_profile = service.get_profile_by_username(db, followed_username)
+            followed_emails.append(followed_profile["email"])
+        return followed_emails
+                
+    except Exception as e:
+        logger.error(f"Error getting followed emails: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
 
 
