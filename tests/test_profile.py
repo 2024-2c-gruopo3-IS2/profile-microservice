@@ -127,6 +127,12 @@ def test_get_profile_by_username():
     assert profile["email"] == "mocked_email@example.com"
     assert profile["name"] == "John Updated"
 
+def test_get_profile_by_email():
+    response = client.get("/profiles/by-email?email=mocked_email@example.com")
+    assert response.status_code == 200
+    profile = response.json()
+    assert profile["username"] == "johndoe"
+
 def test_get_profile_by_username_not_found():
     response = client.get("/profiles/by-username?username=unknown")
     assert response.status_code == 404

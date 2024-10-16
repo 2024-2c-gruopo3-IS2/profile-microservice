@@ -68,6 +68,19 @@ class ProfileService:
         profile["interests"] = profile.get("interests", "").split(",")
         logger.info(f"Profile for username {username} retrieved")
         return profile
+
+    def get_profile_by_email(self, db: Session, email: str):
+        logger.info(f"Getting profiles by email {email}")
+        profile =  ProfileRepository.get_by_email(db, email)
+
+        if not profile:
+            logger.error(f"Profile for email {email} not found.")
+            raise Exception(f"Profile for email {email} not found.")
+        
+        profile = profile.__dict__
+        profile["interests"] = profile.get("interests", "").split(",")
+        logger.info(f"Profile for email {email} retrieved")
+        return profile
     
     def follow_user(self, db: Session, follower_email: str, followed: str):
         logger.info(f"Following user {followed}")

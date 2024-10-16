@@ -118,6 +118,23 @@ def get_profile_by_username(username: str, db: Session = Depends(get_db)):
         logger.error(f"Error getting profile by username: {str(e)}")
         raise HTTPException(status_code=404, detail=str(e))
     
+@router.get("/by-email", response_model=ProfileResponse)
+def get_profile_by_email(email: str, db: Session = Depends(get_db)):
+    """
+    Get a profile by email.
+    """
+    logger.info(f"Getting profile by email {email}")
+    service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
+    try:
+        logger.info(f"Getting profile by email {email}")
+        profile = service.get_profile_by_email(db, email)
+        logger.info(f"Profile retrieved successfully")
+        return ProfileResponse(**profile)
+                
+    except Exception as e:
+        logger.error(f"Error getting profile by email: {str(e)}")
+        raise HTTPException(status_code=404, detail=str(e))
+    
 @router.post("/follow")
 def follow_user(username: str, user_email: callable = Depends(get_user_from_token), db: Session = Depends(get_db)):
     """
