@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from datadog import statsd
 
 from configs.db import get_db
 from schemas.schema import ProfileCreate, ProfileResponse
@@ -18,6 +19,7 @@ def create_profile(profile_data: ProfileCreate, user_email: callable = Depends(g
     """
     Create a profile.
     """
+    statsd.increment('profile.create_profile')
     logger.info(f"Creating profile with data {profile_data.model_dump()}")
     service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
     try:
