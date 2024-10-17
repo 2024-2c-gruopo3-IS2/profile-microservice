@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from datadog import statsd
 
 from configs.db import get_db
 from schemas.schema import ProfileCreate, ProfileResponse
