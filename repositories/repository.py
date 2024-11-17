@@ -1,6 +1,7 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 import logging
+import datetime
 from models.model import Follows, Profile
 from schemas.schema import ProfileCreate
 
@@ -61,35 +62,6 @@ class ProfileRepository:
         return profile
     
     @staticmethod
-    def search_users_by_name(db: Session, first_name: str, offset: int = 0, amount: int = 5):
-        """
-        Search for users by their first_name. 
-        First look for users whose first_name starts with the given prefix,
-        then look for users whose first_name contains the given prefix if needed.
-        """
-        logger.info(f"Searching for users with first name {first_name}")
-        starts_with_query = db.query(Profile).filter(Profile.name.ilike(f"{first_name}%")).offset(offset).limit(amount).all()
-
-        if len(starts_with_query) < amount:
-            
-            remaining = amount - len(starts_with_query)
-
-    
-            contains_query = (
-                db.query(Profile)
-                .filter(Profile.name.ilike(f"%{first_name}%"))
-                .offset(offset)
-                .limit(remaining)
-                .all()
-            )
-
-            return starts_with_query + contains_query
-        
-        logger.info(f"Found {len(starts_with_query)} users with first name {first_name}")
-
-        return starts_with_query
-    
-    @staticmethod
     def get_all_usernames(db: Session):
         """
         Get all usernames.
@@ -111,8 +83,9 @@ class ProfileRepository:
         Follow a user.
         """
         logger.info(f"Following user {followed}")
-        query = text("INSERT INTO follows (follower, followed) VALUES (:follower, :followed)")
-        db.execute(query, {"follower": follower, "followed": followed})
+        created_at = datetime.datetime.now()
+        query = text("INSERT INTO follows (follower, followed, created_at) VALUES (:follower, :followed, :created_at)")
+        db.execute(query, {"follower": follower, "followed": followed, "created_at": created_at})
         db.commit()
         logger.info(f"User {followed} followed successfully")
 
@@ -142,3 +115,11 @@ class ProfileRepository:
         """
         logger.info(f"Getting all users following {followed}")
         return [follower[0] for follower in db.query(Follows.follower).filter(Follows.followed == followed).all()]
+    
+    @staticmethod
+    def get_all_followers_with_timestamp(db: Session, followed: str):
+        """
+        Get all users following a user with timestamp.
+        """
+        logger.info(f"Getting all users following {followed} with timestamp")
+        return [{"follower": follower[0], "created_at": follower[1]} for follower in db.query(Follows.follower, Follows.created_at).filter(Follows.followed == followed).all()]

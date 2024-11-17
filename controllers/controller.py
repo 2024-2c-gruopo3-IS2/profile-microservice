@@ -186,6 +186,23 @@ def get_followers(username: str, user_email: callable = Depends(get_user_from_to
         logger.error(f"Error getting followers: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
     
+@router.get("/followers-with-time/")
+def get_followers_with_time(username: str, user_email: callable = Depends(get_user_from_token), db: Session = Depends(get_db)):
+    """
+    Get followers of a user with the time they followed.
+    """
+    logger.info(f"Getting followers with time for {username}")
+    service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
+    try:
+        logger.info(f"Getting followers with time for {username}")
+        followers = service.get_followers_with_time(db, username, user_email)
+        logger.info(f"Followers with time retrieved successfully")
+        return followers
+                
+    except Exception as e:
+        logger.error(f"Error getting followers with time: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    
 @router.get("/followed")
 def get_followed(username: str, user_email: callable = Depends(get_user_from_token), db: Session = Depends(get_db)):
     """

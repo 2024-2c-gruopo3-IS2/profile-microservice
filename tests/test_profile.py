@@ -233,6 +233,14 @@ def test_get_my_followers():
     assert len(response.json()) == 1
     assert response.json()[0] == "janedoe"
 
+def test_get_followers_with_timestamp():
+    response = client.get("/profiles/followers-with-time?username=johndoe", headers={"Authorization":"Bearer invalid_token"})
+    
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+    assert len(response.json()) == 1
+    assert response.json()[0]['follower'] == 'janedoe'
+
 def test_get_my_followed():
     response = client.get("/profiles/followed?username=johndoe", headers={"Authorization":"Bearer invalid_token"})
     assert response.status_code == 200
@@ -284,6 +292,9 @@ def test_cannot_follow_self():
 
     assert response.status_code == 400
     assert response.json() == {"detail": "Cannot follow yourself."}
+
+
+
 
 
 

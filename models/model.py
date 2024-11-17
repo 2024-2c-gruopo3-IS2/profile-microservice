@@ -1,5 +1,6 @@
-from sqlalchemy import Column, String, Date, Text
+from sqlalchemy import Column, String, Date, Text, DateTime
 from configs.db import Base
+import datetime
 
 class Profile(Base):
     __tablename__ = 'profiles'
@@ -18,4 +19,6 @@ class Follows(Base):
 
     follower = Column(String, primary_key=True, index=True)
     followed = Column(String, primary_key=True, index=True)
+    created_at = Column(DateTime, default=datetime.datetime.now(), nullable=False)
+    
 

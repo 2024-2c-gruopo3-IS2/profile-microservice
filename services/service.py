@@ -157,5 +157,21 @@ class ProfileService:
                 return username_followers
             else:
                 raise Exception(f"User {token_username} is not authorized to view followers of user {username}")
+            
+    def get_followers_with_time(self, db: Session, username: str, user_email: str):
+        logger.info(f"Getting followers with timestamp")
+
+        token_username = ProfileRepository.get_by_email(db, user_email).username
+
+        if token_username == username:
+            return ProfileRepository.get_all_followers_with_timestamp(db, username)
+        else:
+            username_followers = ProfileRepository.get_all_followers_with_timestamp(db, username)
+            token_username_followers = ProfileRepository.get_all_followers_with_timestamp(db, token_username)
+
+            if token_username in username_followers and username in token_username_followers:
+                return username_followers
+            else:
+                raise Exception(f"User {token_username} is not authorized to view followers of user {username}")
     
     
