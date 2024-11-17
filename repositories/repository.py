@@ -123,3 +123,25 @@ class ProfileRepository:
         """
         logger.info(f"Getting all users following {followed} with timestamp")
         return [{"follower": follower[0], "created_at": follower[1]} for follower in db.query(Follows.follower, Follows.created_at).filter(Follows.followed == followed).all()]
+    
+    @staticmethod
+    def verify_user(db:Session, username: str):
+        """
+        Verify a user.
+        """
+        logger.info(f"Verifying user {username}")
+        query = text("UPDATE profiles SET is_verified = TRUE WHERE username = :username")
+        db.execute(query, {"username": username})
+        db.commit()
+        logger.info(f"User {username} verified successfully")
+
+    @staticmethod
+    def unverify_user(db:Session, username: str):
+        """
+        Unverify a user.
+        """
+        logger.info(f"Unverifying user {username}")
+        query = text("UPDATE profiles SET is_verified = FALSE WHERE username = :username")
+        db.execute(query, {"username": username})
+        db.commit()
+        logger.info(f"User {username} unverified successfully")

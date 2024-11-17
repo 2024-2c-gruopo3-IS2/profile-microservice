@@ -174,4 +174,12 @@ class ProfileService:
             else:
                 raise Exception(f"User {token_username} is not authorized to view followers of user {username}")
     
+    def verify_user(self, db, username):
+        logger.info(f"Verifying user {username}")
+        return ProfileRepository.verify_user(db, username)
+    
+    def unverify_user(self, db, username):
+        logger.info(f"Unverifying user {username}")
+        return ProfileRepository.unverify_user(db, username)
+
     

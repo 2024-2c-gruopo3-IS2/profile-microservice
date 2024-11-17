@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Date, Text, DateTime
+from sqlalchemy import Boolean, Column, String, Date, Text, DateTime
 from configs.db import Base
 import datetime
 
@@ -13,6 +13,7 @@ class Profile(Base):
     description = Column(Text)
     date_of_birth = Column(Date)
     interests = Column(Text)
+    is_verified = Column(Boolean, default=False)
 
 class Follows(Base):
     __tablename__ = 'follows'

@@ -15,5 +15,6 @@ class ProfileUpdate(ProfileCreate):
 
 class ProfileResponse(ProfileCreate):
     email: str
-    
+    is_verified: bool
+
     model_config = ConfigDict(from_attributes=True)

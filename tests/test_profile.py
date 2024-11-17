@@ -293,6 +293,16 @@ def test_cannot_follow_self():
     assert response.status_code == 400
     assert response.json() == {"detail": "Cannot follow yourself."}
 
+def test_verify_user():
+    response = client.put("/profiles/verify?username=johndoe", headers={"Authorization":"Bearer invalid_token"})
+    assert response.status_code == 200
+    assert response.json() == {"message": "User verified successfully"}
+
+def test_unverify_user():
+    response = client.put("/profiles/unverify?username=johndoe", headers={"Authorization":"Bearer invalid_token"})
+    assert response.status_code == 200
+    assert response.json() == {"message": "User unverified successfully"}
+
 
 
 

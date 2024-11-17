@@ -240,5 +240,39 @@ def get_followed_emails(username: str, user_email: callable = Depends(get_user_f
     except Exception as e:
         logger.error(f"Error getting followed emails: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
+    
+@router.put("/verify")
+def verify_user(username: str, db: Session = Depends(get_db)):
+    """
+    Verify a user.
+    """
+    logger.info(f"Verifying user {username}")
+    service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
+    try:
+        logger.info(f"Verifying user {username}")
+        service.verify_user(db, username)
+        logger.info(f"User verified successfully")
+        return {"message": "User verified successfully"}
+                
+    except Exception as e:
+        logger.error(f"Error verifying user: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@router.put("/unverify")
+def unverify_user(username: str, db: Session = Depends(get_db)):
+    """
+    Unverify a user.
+    """
+    logger.info(f"Unverifying user {username}")
+    service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
+    try:
+        logger.info(f"Unverifying user {username}")
+        service.unverify_user(db, username)
+        logger.info(f"User unverified successfully")
+        return {"message": "User unverified successfully"}
+                
+    except Exception as e:
+        logger.error(f"Error unverifying user: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
 
 
