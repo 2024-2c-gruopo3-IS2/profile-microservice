@@ -275,4 +275,21 @@ def unverify_user(username: str, db: Session = Depends(get_db)):
         logger.error(f"Error unverifying user: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
+@router.get("/get-all-users")
+def get_all_users(db: Session = Depends(get_db)):
+    """
+    Get all users.
+    """
+    logger.info(f"Getting all users")
+    service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
+    try:
+        logger.info(f"Getting all users")
+        users = service.get_all_users(db)
+        logger.info(f"Users retrieved successfully")
+        return users
+                
+    except Exception as e:
+        logger.error(f"Error getting all users: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+
 

@@ -145,3 +145,11 @@ class ProfileRepository:
         db.execute(query, {"username": username})
         db.commit()
         logger.info(f"User {username} unverified successfully")
+
+    @staticmethod
+    def get_all_users(db: Session):
+        """
+        Get all users.
+        """
+        logger.info(f"Getting all users")
+        return [profile for profile in db.query(Profile).all()]

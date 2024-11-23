@@ -181,5 +181,9 @@ class ProfileService:
     def unverify_user(self, db, username):
         logger.info(f"Unverifying user {username}")
         return ProfileRepository.unverify_user(db, username)
+    
+    def get_all_users(self, db):
+        logger.info(f"Getting all users")
+        return ProfileRepository.get_all_users(db)
 
     

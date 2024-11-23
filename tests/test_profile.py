@@ -303,6 +303,9 @@ def test_unverify_user():
     assert response.status_code == 200
     assert response.json() == {"message": "User unverified successfully"}
 
+def test_get_all_users():
+    response = client.get("/profiles/get-all-users", headers={"Authorization": "Bearer invalid_token"})
+    assert response.status_code == 200
 
 
 
