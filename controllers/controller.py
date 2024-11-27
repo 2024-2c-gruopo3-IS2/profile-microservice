@@ -291,5 +291,23 @@ def get_all_users(db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Error getting all users: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
+    
+@router.get("/verified-users")
+def get_verified_users(db: Session = Depends(get_db)):
+    """
+    Get verified users.
+    """
+    logger.info(f"Getting verified users")
+    service = ProfileService(auth_service_url=settings.AUTH_SERVICE_URL)
+    try:
+        logger.info(f"Getting verified users")
+        users = service.get_verified_users(db)
+        logger.info(f"Verified users retrieved successfully")
+        return users
+                
+    except Exception as e:
+        logger.error(f"Error getting verified users: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+
 
 

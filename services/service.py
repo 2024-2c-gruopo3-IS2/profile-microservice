@@ -185,5 +185,9 @@ class ProfileService:
     def get_all_users(self, db):
         logger.info(f"Getting all users")
         return ProfileRepository.get_all_users(db)
+    
+    def get_verified_users(self, db):
+        logger.info(f"Getting verified users")
+        return ProfileRepository.get_verified_users(db)
 
     

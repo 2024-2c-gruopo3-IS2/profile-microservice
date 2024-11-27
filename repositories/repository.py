@@ -153,3 +153,11 @@ class ProfileRepository:
         """
         logger.info(f"Getting all users")
         return [profile for profile in db.query(Profile).all()]
+    
+    @staticmethod
+    def get_verified_users(db: Session):
+        """
+        Get all verified users.
+        """
+        logger.info(f"Getting all verified users")
+        return [profile.username for profile in db.query(Profile).filter(Profile.is_verified == True).all()]
